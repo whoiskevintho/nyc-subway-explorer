@@ -1,28 +1,14 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Stats } from "@react-three/drei";
-import { useEffect, useState } from "react";
-import SubwayLines from "./Components/SubwayLines";
-import { useControls } from "leva";
+import { useEffect, useRef, useState } from "react";
+import SubwayMap from "./SubwayMap";
 import axios from "axios";
-import { geoMercator } from "d3-geo";
+import SocketManager from "./SocketManager";
 
 function App() {
   const [subwayData, setSubwayData] = useState(null);
   const [stationData, setStationData] = useState(null);
-
-  const projection = geoMercator()
-    .center([-73.95, 40.7]) // Center on NYC
-    .scale(100000);
-  // Add rotation control
-  const { rotation } = useControls({
-    rotation: {
-      value: Math.PI / 0.13,
-      min: 0,
-      max: Math.PI * 2,
-      step: 0.01,
-      label: "Y Rotation",
-    },
-  });
+  const socketManager = useRef(null);
 
   const getStationData = () => {
     axios("https://data.ny.gov/resource/39hk-dx4f.json").then((response) => {
@@ -34,6 +20,7 @@ function App() {
     fetch("/nyc_subway_routes.geojson")
       .then((response) => response.json())
       .then((data) => {
+        console.log("data =>", data);
         setSubwayData(data);
       })
       .catch((error) => {
@@ -41,9 +28,15 @@ function App() {
       });
   };
 
+  const connectToSocket = () => {
+    socketManager.current = new SocketManager("ws://localhost:8000/ws");
+    socketManager.current.connect();
+  };
+
   useEffect(() => {
     getStationData();
     getSubwayData();
+    connectToSocket();
   }, []);
 
   return (
@@ -61,9 +54,7 @@ function App() {
         <pointLight position={[10, 10, 10]} />
         {subwayData && stationData && (
           <group rotation={[0, 0.49, 0]}>
-            <group position={[-205, 0, -86]} scale={0.5}>
-              <SubwayLines geojsonData={subwayData} stationData={stationData} />
-            </group>
+            <SubwayMap subwayData={subwayData} stationData={stationData} />
           </group>
         )}
         <OrbitControls enableDamping dampingFactor={0.05} screenSpacePanning={true} target={[0, 0, 0]} />
