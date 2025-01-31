@@ -44,7 +44,7 @@ function App() {
       <Stats />
       <Canvas
         camera={{
-          position: [8, 9, 10],
+          position: [0, 10, 10],
           fov: 60,
           near: 0.1,
           far: 1000,
@@ -52,6 +52,7 @@ function App() {
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
+        <axesHelper />
         {subwayData && stationData && (
           <group rotation={[0, 0.49, 0]}>
             <SubwayMap subwayData={subwayData} stationData={stationData} />
