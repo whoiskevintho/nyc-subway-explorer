@@ -1,13 +1,12 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import * as THREE from "three";
 import { geoMercator } from "d3-geo";
 
-function SubwayLines({ geojsonData, stationData }) {
+function SubwayLines({ geojsonData }) {
+  const projection = geoMercator()
+    .center([-73.95, 40.7]) // Center on NYC
+    .scale(100000); // Adjust scale to zoom into NYC
   const lines = useMemo(() => {
-    const projection = geoMercator()
-      .center([-73.95, 40.7]) // Center on NYC
-      .scale(100000); // Adjust scale to zoom into NYC
-
     const allLines = [];
 
     geojsonData.features.forEach((feature) => {

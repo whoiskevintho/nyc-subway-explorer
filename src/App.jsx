@@ -1,14 +1,18 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Stats } from "@react-three/drei";
 import { useEffect, useState } from "react";
-import SubwayLines from "./Components/nyc_subway_routes";
+import SubwayLines from "./Components/SubwayLines";
 import { useControls } from "leva";
 import axios from "axios";
+import { geoMercator } from "d3-geo";
 
 function App() {
   const [subwayData, setSubwayData] = useState(null);
   const [stationData, setStationData] = useState(null);
 
+  const projection = geoMercator()
+    .center([-73.95, 40.7]) // Center on NYC
+    .scale(100000);
   // Add rotation control
   const { rotation } = useControls({
     rotation: {
@@ -63,7 +67,6 @@ function App() {
           </group>
         )}
         <OrbitControls enableDamping dampingFactor={0.05} screenSpacePanning={true} target={[0, 0, 0]} />
-        <gridHelper args={[10, 10]} />
       </Canvas>
     </div>
   );
